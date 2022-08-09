@@ -42,6 +42,41 @@ function BarrierPair(height, spread, xPosition) {
   this.setX(xPosition);
 }
 
-const b = new BarrierPair(700, 300, 400);
-console.log(b.element);
-document.querySelector("[wm-flappy]").appendChild(b.element);
+function Barriers(height, width, spread, spaceBetween, notifyPoint) {
+  this.pairs = [
+    new BarrierPair(height, spread, width),
+    new BarrierPair(height, spread, width + spaceBetween),
+    new BarrierPair(height, spread, width + spaceBetween * 2),
+    new BarrierPair(height, spread, width + spaceBetween * 3),
+  ];
+
+  const steps = 3;
+
+  this.animate = () => {
+    this.pairs.forEach(pair => {
+      pair.setX(pair.getX() - steps);
+
+      if (pair.getX() < -pair.getWidth()) {
+        pair.setX(pair.getX() + spaceBetween * this.pairs.length)
+        pair.spreadSort();
+      }
+
+      const middle = width / 2;
+      const crossedMiddle = pair.getX() + steps >= middle && pair.getX() < middle;
+
+      crossedMiddle && notifyPoint();
+    });
+  }
+}
+
+
+
+const b = new Barriers(700, 1200, 300, 400);
+const gameArea = document.querySelector("[wm-flappy]");
+
+b.pairs.forEach(pair => gameArea.appendChild(pair.element));
+
+setInterval(() => {
+  b.animate();
+
+}, 20);

@@ -20,9 +20,7 @@
 .bird {
   position: absolute;
   width: 60px;
-  /* left: 50%; */
   left: calc(50% - 30px);
-  bottom: calc(50% - 30px);
 }
 
 .barrier-pair {
