@@ -69,14 +69,43 @@ function Barriers(height, width, spread, spaceBetween, notifyPoint) {
   }
 }
 
+function Bird(gameHeight) {
+  let flyng = false;
 
+  this.element = newElement('img', 'bird');
+  this.element.src = "imgs/passaro.png";
+
+  this.getY = () => parseInt(this.element.style.bottom.split("px")[0]);
+  this.setY = (yPos) => this.element.style.bottom = `${yPos}px`;
+
+  // Tecla clicada
+  window.onkeydown = (e) => flyng = true;
+  // Soltou a tecla
+  window.onkeyup = (e) => flyng = false;
+
+  this.animate = () => {
+    const newY = this.getY() + (flyng ? 8 : -5);
+    const maxHeight = gameHeight - this.element.clientHeight;
+
+    if (newY <= 0)
+      this.setY = 0;
+    else if (newY >= maxHeight)
+      this.setY(maxHeight);
+    else
+      this.setY(newY);
+  }
+
+  this.setY(gameHeight / 2);
+}
 
 const b = new Barriers(700, 1200, 300, 400);
+const bird = new Bird(700);
 const gameArea = document.querySelector("[wm-flappy]");
 
+gameArea.appendChild(bird.element);
 b.pairs.forEach(pair => gameArea.appendChild(pair.element));
 
 setInterval(() => {
   b.animate();
-
+  bird.animate();
 }, 20);
