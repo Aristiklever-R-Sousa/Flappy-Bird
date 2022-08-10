@@ -42,7 +42,7 @@ function BarrierPair(height, spread, xPosition) {
   this.setX(xPosition);
 }
 
-function Barriers(height, width, spread, spaceBetween, notifyPoint) {
+function Barriers(height, width, spread, spaceBetween, notifyScore) {
   this.pairs = [
     new BarrierPair(height, spread, width),
     new BarrierPair(height, spread, width + spaceBetween),
@@ -61,10 +61,10 @@ function Barriers(height, width, spread, spaceBetween, notifyPoint) {
         pair.spreadSort();
       }
 
-      const middle = width / 2;
+      const middle = width / 2.5;
       const crossedMiddle = pair.getX() + steps >= middle && pair.getX() < middle;
 
-      crossedMiddle && notifyPoint();
+      crossedMiddle && notifyScore();
     });
   }
 }
@@ -88,7 +88,7 @@ function Bird(gameHeight) {
     const maxHeight = gameHeight - this.element.clientHeight;
 
     if (newY <= 0)
-      this.setY = 0;
+      this.setY(0);
     else if (newY >= maxHeight)
       this.setY(maxHeight);
     else
@@ -98,14 +98,37 @@ function Bird(gameHeight) {
   this.setY(gameHeight / 2);
 }
 
-const b = new Barriers(700, 1200, 300, 400);
-const bird = new Bird(700);
-const gameArea = document.querySelector("[wm-flappy]");
+function Progress() {
+  this.element = newElement("span", "progress");
 
-gameArea.appendChild(bird.element);
-b.pairs.forEach(pair => gameArea.appendChild(pair.element));
+  this.setScore = score => {
+    this.element.innerHTML = score;
+  }
 
-setInterval(() => {
-  b.animate();
-  bird.animate();
-}, 20);
+  this.setScore(0);
+}
+
+function FlappyBird() {
+  let score = 0;
+
+  const gameArea = document.querySelector("[wm-flappy]");
+  const height = gameArea.clientHeight;
+  const width = gameArea.clientWidth;
+
+  const progress = new Progress();
+  const barriers = new Barriers(height, width, 300, 400, () => progress.setScore(++score));
+  const bird = new Bird(height);
+
+  gameArea.appendChild(progress.element);
+  gameArea.appendChild(bird.element);
+  barriers.pairs.forEach(pair => gameArea.appendChild(pair.element));
+
+  this.start = () => {
+    const temp = setInterval(() => {
+      barriers.animate();
+      bird.animate();
+    }, 20);
+  }
+}
+
+new FlappyBird().start();
